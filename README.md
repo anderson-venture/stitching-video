@@ -1,90 +1,106 @@
 # Video Stitching Tool
 
-A Python tool for stitching two videos together using OpenCV and computer vision techniques.
+A comprehensive Python tool for video stitching with two modes:
+1. **Side-by-side stitching** (`main.py`) - Simple horizontal concatenation
+2. **Panoramic stitching** (`panorama_stitcher.py`) - Advanced feature-based stitching for overlapping videos
 
 ## Features
 
-- **Flexible Input Methods**: Multiple ways to specify input videos
-- **Automatic Video Detection**: Auto-finds videos in source directory
-- **Command Line Interface**: Full CLI support with arguments
-- **Interactive Mode**: Prompts for input when needed
-- **Video Resampling**: Ensures both videos have the same FPS
-- **Feature Matching**: Uses ORB features for robust stitching
+### Common Features (Both Modes)
+- **Frame Rate Synchronization**: Automatically handles videos with different frame rates
+- **Aspect Ratio Preservation**: Maintains video proportions while resizing
+- **Progress Tracking**: Shows real-time processing progress
+- **Virtual Environment Support**: Clean dependency management
 
-## Installation
+### Panoramic Mode Features
+- **SIFT Feature Detection**: Finds matching points between overlapping videos
+- **Homography Calculation**: Computes geometric transformation for alignment
+- **RANSAC Outlier Removal**: Robust estimation ignoring mismatched features
+- **Seamless Blending**: Smooth transitions in overlap regions
+- **Automatic Panorama Sizing**: Calculates optimal output dimensions
 
-1. Install required packages:
+## Requirements
+
+Install the required dependencies:
+
 ```bash
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
-
-2. Ensure FFmpeg is installed on your system for video processing.
 
 ## Usage
 
-### Method 1: Command Line Arguments (Recommended)
+### Setup Virtual Environment (Recommended)
 
 ```bash
-# Basic usage with auto-detection
-python main.py
-
-# Specify video files directly
-python main.py --video1 path/to/video1.mov --video2 path/to/video2.mov
-
-# Specify output file and FPS
-python main.py -v1 video1.mov -v2 video2.mov -o output.mp4 --fps 24
-
-# Use different source directory
-python main.py --source-dir path/to/videos
+python -m venv venv
+.\venv\Scripts\activate.ps1  # Windows PowerShell
+# or: source venv/bin/activate  # Linux/Mac
+pip install -r requirements.txt
 ```
 
-### Method 2: Interactive Mode
+### Mode 1: Side-by-Side Stitching
 
-If no command line arguments are provided, the tool will:
-1. First try to auto-detect videos in the `source/1` directory
-2. If no videos found, prompt you to enter file paths manually
+For simple horizontal concatenation of two videos:
 
-### Method 3: Auto-Detection
+```bash
+python main.py
+```
 
-The tool automatically looks for video files in the `source/1` directory and uses the first two found files.
+Output: `output_stitched.mp4`
 
-## Command Line Options
+### Mode 2: Panoramic Stitching (For Overlapping Videos)
 
-- `--video1`, `-v1`: Path to first video file
-- `--video2`, `-v2`: Path to second video file  
-- `--output`, `-o`: Output video file path (default: stitched_video.mp4)
-- `--fps`: Output FPS (default: 30)
-- `--source-dir`, `-s`: Source directory containing video files (default: source/1)
+For videos with overlapping content that need feature-based alignment:
 
-## Supported Video Formats
+```bash
+python panorama_stitcher.py
+```
 
-- .mov
-- .mp4
-- .avi
-- .mkv
-- .wmv
+Output: `panorama_output.mp4`
+
+### Analyze Video Overlap
+
+To understand how your videos overlap:
+
+```bash
+python analyze_overlap.py
+```
+
+This creates an `analysis/` folder with visual comparisons and feature matching results.
+
+### Video Properties Handled
+
+The tool automatically:
+- Detects different frame rates (e.g., 30 FPS vs 29.97 FPS)
+- Resamples to the lower frame rate for smooth playback
+- Resizes videos to match height while preserving aspect ratio
+- Synchronizes video duration
+
+## Output
+
+- **Format**: MP4 (H.264)
+- **Resolution**: Combined width × minimum height
+- **Frame Rate**: Minimum of input frame rates
+- **Duration**: Minimum of input durations
 
 ## Example
 
-```bash
-# Using the default source directory
-python main.py
+For the provided iPhone videos:
+- Left: 1920×1080 @ 30 FPS
+- Right: 1920×1080 @ 29.97 FPS
+- Output: 3840×1080 @ 29.97 FPS
 
-# Output:
-# Video Stitching Tool
-# ==================================================
-# Auto-detected videos: source/1/iphone_left.mov and source/1/iphone_right.mov
-# 
-# Processing videos:
-#   Video 1: source/1/iphone_left.mov
-#   Video 2: source/1/iphone_right.mov
-#   Output: stitched_video.mp4
-#   FPS: 30
-```
+## Technical Details
 
-## Notes
+The tool uses:
+- **OpenCV** for video processing and frame manipulation
+- **NumPy** for efficient array operations
+- **Frame interpolation** for smooth rate conversion
+- **Horizontal concatenation** for side-by-side stitching
 
-- The tool uses the first frame to compute the homography matrix for stitching
-- Press 'q' during processing to quit early
-- Temporary resampled videos are created during processing
-- Make sure both input videos have sufficient overlap for good stitching results
+## Troubleshooting
+
+- Ensure both input videos exist in the correct paths
+- Check that videos are in a supported format (MOV, MP4, AVI)
+- Verify sufficient disk space for the output file
+- Install all required dependencies from `requirements.txt`

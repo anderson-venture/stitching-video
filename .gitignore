@@ -1,4 +1,7 @@
+analysis/
+debug/
+frames/
 source/
-.venv/
+venv/
 *.mp4
 *.mov
